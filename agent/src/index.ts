@@ -269,6 +269,11 @@ export function getTokenForProvider(
                 character.settings?.secrets?.VOLENGINE_API_KEY ||
                 settings.VOLENGINE_API_KEY
             );
+        case ModelProviderName.NOVITA:
+            return (
+                character.settings?.secrets?.NOVITA_API_KEY ||
+                settings.NOVITA_API_KEY
+            );
     }
 }
 
