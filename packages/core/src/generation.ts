@@ -430,6 +430,30 @@ export async function generateText({
                 elizaLogger.debug("Received response from Galadriel model.");
                 break;
             }
+            case ModelProviderName.NOVITA: {
+                elizaLogger.debug("Initializing Novita model.");
+                const novita = createOpenAI({
+                    apiKey: apiKey,
+                    baseURL: endpoint,
+                });
+
+                const { text: NovitaResponse } = await aiGenerateText({
+                    model: novita.languageModel(model),
+                    prompt: context,
+                    system:
+                        runtime.character.system ??
+                        settings.SYSTEM_PROMPT ??
+                        undefined,
+                    temperature: temperature,
+                    maxTokens: max_response_length,
+                    frequencyPenalty: frequency_penalty,
+                    presencePenalty: presence_penalty,
+                });
+
+                response = NovitaResponse;
+                elizaLogger.debug("Received response from Novita model.");
+                break;
+            }
 
             default: {
                 const errorMessage = `Unsupported provider: ${provider}`;
@@ -907,7 +931,7 @@ export const generateImage = async (
                 const blob = await imageResponse.blob();
                 const arrayBuffer = await blob.arrayBuffer();
                 const base64 = Buffer.from(arrayBuffer).toString('base64');
-                
+
                 // Return with proper MIME type
                 return `data:image/jpeg;base64,${base64}`;
             }));
