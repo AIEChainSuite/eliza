@@ -1,53 +1,52 @@
-import { PostgresDatabaseAdapter } from "@ai16z/adapter-postgres";
-import { SqliteDatabaseAdapter } from "@ai16z/adapter-sqlite";
-import { AutoClientInterface } from "@ai16z/client-auto";
-import { DirectClientInterface } from "@ai16z/client-direct";
-import { DiscordClientInterface } from "@ai16z/client-discord";
-import { TelegramClientInterface } from "@ai16z/client-telegram";
-import { TwitterClientInterface } from "@ai16z/client-twitter";
-import { FarcasterAgentClient } from "@ai16z/client-farcaster";
+import {PostgresDatabaseAdapter} from "@ai16z/adapter-postgres";
+import {SqliteDatabaseAdapter} from "@ai16z/adapter-sqlite";
+import {AutoClientInterface} from "@ai16z/client-auto";
+import {DirectClientInterface} from "@ai16z/client-direct";
+import {DiscordClientInterface} from "@ai16z/client-discord";
+import {TelegramClientInterface} from "@ai16z/client-telegram";
+import {TwitterClientInterface} from "@ai16z/client-twitter";
+import {FarcasterAgentClient} from "@ai16z/client-farcaster";
 import {
     AgentRuntime,
     CacheManager,
     Character,
-    Clients,
     DbCacheAdapter,
+    defaultCharacter,
+    elizaLogger,
     FsCacheAdapter,
     IAgentRuntime,
     ICacheManager,
     IDatabaseAdapter,
     IDatabaseCacheAdapter,
     ModelProviderName,
-    defaultCharacter,
-    elizaLogger,
     settings,
     stringToUuid,
     validateCharacterConfig,
 } from "@ai16z/eliza";
-import { zgPlugin } from "@ai16z/plugin-0g";
-import { goatPlugin } from "@ai16z/plugin-goat";
-import { bootstrapPlugin } from "@ai16z/plugin-bootstrap";
+import {zgPlugin} from "@ai16z/plugin-0g";
+import {goatPlugin} from "@ai16z/plugin-goat";
+import {bootstrapPlugin} from "@ai16z/plugin-bootstrap";
 // import { buttplugPlugin } from "@ai16z/plugin-buttplug";
 import {
     coinbaseCommercePlugin,
     coinbaseMassPaymentsPlugin,
-    tradePlugin,
     tokenContractPlugin,
+    tradePlugin,
     webhookPlugin,
 } from "@ai16z/plugin-coinbase";
-import { confluxPlugin } from "@ai16z/plugin-conflux";
-import { imageGenerationPlugin } from "@ai16z/plugin-image-generation";
-import { evmPlugin } from "@ai16z/plugin-evm";
-import { createNodePlugin } from "@ai16z/plugin-node";
-import { solanaPlugin } from "@ai16z/plugin-solana";
-import { aptosPlugin, TransferAptosToken } from "@ai16z/plugin-aptos";
-import { flowPlugin } from "@ai16z/plugin-flow";
-import { teePlugin } from "@ai16z/plugin-tee";
+import {confluxPlugin} from "@ai16z/plugin-conflux";
+import {imageGenerationPlugin} from "@ai16z/plugin-image-generation";
+import {evmPlugin} from "@ai16z/plugin-evm";
+import {createNodePlugin} from "@ai16z/plugin-node";
+import {solanaPlugin} from "@ai16z/plugin-solana";
+import {aptosPlugin} from "@ai16z/plugin-aptos";
+import {flowPlugin} from "@ai16z/plugin-flow";
+import {teePlugin} from "@ai16z/plugin-tee";
 import Database from "better-sqlite3";
 import fs from "fs";
 import path from "path";
 import readline from "readline";
-import { fileURLToPath } from "url";
+import {fileURLToPath} from "url";
 import yargs from "yargs";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
@@ -279,7 +278,7 @@ export function getTokenForProvider(
 
 function initializeDatabase(dataDir: string) {
     if (process.env.POSTGRES_URL) {
-        elizaLogger.info("Initializing PostgreSQL connection...");
+        elizaLogger.info("Initializing PostgresSQL connection...");
         const db = new PostgresDatabaseAdapter({
             connectionString: process.env.POSTGRES_URL,
             parseInputs: true,
@@ -289,11 +288,11 @@ function initializeDatabase(dataDir: string) {
         db.init()
             .then(() => {
                 elizaLogger.success(
-                    "Successfully connected to PostgreSQL database"
+                    "Successfully connected to PostgresSQL database"
                 );
             })
             .catch((error) => {
-                elizaLogger.error("Failed to connect to PostgreSQL:", error);
+                elizaLogger.error("Failed to connect to PostgresSQL:", error);
             });
 
         return db;
@@ -301,8 +300,7 @@ function initializeDatabase(dataDir: string) {
         const filePath =
             process.env.SQLITE_FILE ?? path.resolve(dataDir, "db.sqlite");
         // ":memory:";
-        const db = new SqliteDatabaseAdapter(new Database(filePath));
-        return db;
+        return new SqliteDatabaseAdapter(new Database(filePath));
     }
 }
 
