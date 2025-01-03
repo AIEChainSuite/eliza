@@ -135,7 +135,7 @@ Thread of Tweets You Are Replying To:
 
 export class MessageManager {
     public bot: Telegraf<Context>;
-    private runtime: IAgentRuntime;
+    private readonly runtime: IAgentRuntime;
 
     constructor(bot: Telegraf<Context>, runtime: IAgentRuntime) {
         this.bot = bot;
@@ -307,6 +307,13 @@ export class MessageManager {
         return response;
     }
 
+    private async sendChatAction(ctx: Context, action: any, time:number = 4000) {
+        await ctx.sendChatAction(action)
+        return setInterval(async () => {
+            await ctx.sendChatAction(action)
+        }, time)
+    }
+
     // Main handler for incoming messages
     public async handleMessage(ctx: Context): Promise<void> {
         if (!ctx.message || !ctx.from) {
@@ -329,7 +336,7 @@ export class MessageManager {
         }
 
         const message = ctx.message;
-
+        const timeAction = await this.sendChatAction(ctx, 'typing')
         try {
             // Convert IDs to UUIDs
             const userId = stringToUuid(ctx.from.id.toString()) as UUID;
@@ -380,6 +387,7 @@ export class MessageManager {
                 : messageText;
 
             if (!fullText) {
+                clearInterval(timeAction)
                 return; // Skip if no content
             }
 
@@ -497,10 +505,12 @@ export class MessageManager {
                     state,
                     callback
                 );
+                clearInterval(timeAction)
             }
 
             await this.runtime.evaluate(memory, state, shouldRespond);
         } catch (error) {
+            clearInterval(timeAction)
             elizaLogger.error("❌ Error handling message:", error);
             elizaLogger.error("Error sending message:", error);
         }

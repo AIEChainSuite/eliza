@@ -1,15 +1,21 @@
-import { Context, Telegraf } from "telegraf";
-import { IAgentRuntime, elizaLogger } from "@ai16z/eliza";
-import { MessageManager } from "./messageManager.ts";
-import { getOrCreateRecommenderInBe } from "./getOrCreateRecommenderInBe.ts";
+import {Scenes, Telegraf} from "telegraf";
+import {elizaLogger, IAgentRuntime} from "@ai16z/eliza";
+import {MessageManager} from "./messageManager.ts";
+import {getOrCreateRecommenderInBe} from "./getOrCreateRecommenderInBe.ts";
+
+
+interface WizardContext extends Scenes.WizardContext<Scenes.WizardSessionData> {
+    scene: Scenes.SceneContextScene<WizardContext, Scenes.WizardSessionData>;
+    wizard: Scenes.WizardContextWizard<WizardContext>;
+}
 
 export class TelegramClient {
-    private bot: Telegraf<Context>;
-    private runtime: IAgentRuntime;
+    private readonly bot: Telegraf<WizardContext>;
+    private readonly runtime: IAgentRuntime;
     private messageManager: MessageManager;
-    private backend;
-    private backendToken;
-    private tgTrader;
+    private readonly backend: any;
+    private readonly backendToken: any;
+    private readonly tgTrader: any;
 
     constructor(runtime: IAgentRuntime, botToken: string) {
         elizaLogger.log("📱 Constructing new TelegramClient...");
@@ -47,8 +53,38 @@ export class TelegramClient {
         this.messageManager.bot = this.bot;
     }
 
+
+
     private setupMessageHandlers(): void {
         elizaLogger.log("Setting up message handler...");
+        //handle start command
+        this.bot.start(async (ctx) => {
+            elizaLogger.log(`${ctx.from.username} on start bot`)
+            const startMessage = `
+              🤖 *Welcome ${ctx.from.username}!*
+
+              I am your AI assistant bot.
+
+              Commands:
+              - /help - Show all commands
+              - /start - Start conversation
+              - /info - Show information
+              - /new - Create new Character
+              - /characters - Show All your character
+
+              Send me a message to begin!
+              `;
+            await ctx.reply(startMessage)
+        })
+        // Handle voice command
+        this.bot.command('audio', async (ctx) => {
+
+            await ctx.scene.enter('chat_voice');
+        })
+        // Handle image command
+        this.bot.command('image', async (ctx) => {
+
+        })
 
         this.bot.on("message", async (ctx) => {
             try {
@@ -85,23 +121,10 @@ export class TelegramClient {
             }
         });
 
-        this.bot.on("photo", (ctx) => {
-            elizaLogger.log(
-                "📸 Received photo message with caption:",
-                ctx.message.caption
-            );
-        });
 
-        this.bot.on("document", (ctx) => {
-            elizaLogger.log(
-                "📎 Received document message:",
-                ctx.message.document.file_name
-            );
-        });
-
-        this.bot.catch((err, ctx) => {
+        this.bot.catch(async (err, ctx) => {
             elizaLogger.error(`❌ Telegram Error for ${ctx.updateType}:`, err);
-            ctx.reply("An unexpected error occurred. Please try again later.");
+            await ctx.reply("An unexpected error occurred. Please try again later.");
         });
     }
 
@@ -129,7 +152,7 @@ export class TelegramClient {
 
     public async stop(): Promise<void> {
         elizaLogger.log("Stopping Telegram bot...");
-        await this.bot.stop();
+        this.bot.stop();
         elizaLogger.log("Telegram bot stopped");
     }
 }
