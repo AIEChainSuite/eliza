@@ -1,7 +1,7 @@
 version: "3"
 services:
     eliza:
-        command: ["pnpm", "start"]
+        command: ["pnpm", "start", "--characters=", "characters/mamasan.character.json"]
         build:
             context: .
             dockerfile: Dockerfile
