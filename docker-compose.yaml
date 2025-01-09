@@ -23,9 +23,11 @@ services:
             - ELEVENLABS_OPTIMIZE_STREAMING_LATENCY=4
             - ELEVENLABS_OUTPUT_FORMAT=pcm_16000
             - TWITTER_DRY_RUN=false
-            - TWITTER_USERNAME=
-            - TWITTER_PASSWORD=
-            - TWITTER_EMAIL=
+            - TWITTER_USERNAME=quanchun1308
+            - TWITTER_PASSWORD=Anhquan123
+            - TWITTER_EMAIL=quanna1308.dev@gmail.com
+            - POST_INTERVAL_MIN=5
+            - POST_INTERVAL_MAX=30
             - X_SERVER_URL=https://api.red-pill.ai/v1
             - BIRDEYE_API_KEY=
             - SOL_ADDRESS=So11111111111111111111111111111111111111112
@@ -33,7 +35,9 @@ services:
             - RPC_URL=https://api.mainnet-beta.solana.com
             - HELIUS_API_KEY=
             - SERVER_PORT=3000
-            - WALLET_SECRET_SALT=secret_salt
+            - WALLET_SECRET_SALT=
+            - NOVITA_API_KEY=fc083f61-01d9-4d5d-8ce8-c811dd8d07eb
+            - NOVITA_MODEL=meta-llama/llama-3.3-70b-instruct
         ports:
             - "3000:80"
         restart: always
